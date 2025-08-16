@@ -1,0 +1,16 @@
+CXX = @CXX@
+CXXFLAGS = @CXXFLAGS@
+LDFLAGS = @LDFLAGS@
+pwd = @abs_top_builddir@
+
+
+all: main
+
+main: main.o mainmandelbrot.o
+	$(CXX) -std=gnu++14 -L "$(pwd)/installroot/lib" -lpng -lmpfr  $(LDFLAGS) -o ./bin/main main.o mainmandelbrot.o
+
+main.o: main.cpp mainmandelbrot.h common.h
+	$(CXX) -std=gnu++14 -c -I "$(pwd)/installroot/include" $(CXXFLAGS) -o main.o main.cpp
+
+mainmandelbrot.o: mainmandelbrot.cpp common.h
+	$(CXX) -std=gnu++14 -c -I "$(pwd)/installroot/include" $(CXXFLAGS) -o mainmandelbrot.o mainmandelbrot.cpp
