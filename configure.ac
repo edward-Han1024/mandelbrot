@@ -45,6 +45,6 @@ AC_CHECK_HEADERS([png++/png.hpp], [], [
     PREFIX=$(pwd)/../installroot make -s install > /dev/null || exit 1
 ])
 AC_LANG_POP([C++])
-
+mkdir $srcdir/bin
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
