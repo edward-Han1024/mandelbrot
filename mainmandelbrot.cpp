@@ -88,7 +88,7 @@ void mandelbrot_compute_pixels(uint start_x, uint end_x, uint height, uint width
                 mpfr_sub(temp, temp, temp2, MPFR_RNDN);
                 mpfr_add(temp, temp, re, MPFR_RNDN); // add term
                 // do the imaginary calc
-                mpfr_mul(temp2, wim, wre, MPFR_RNDN); mpfr_mul(temp2, temp2, two, MPFR_RNDN);
+                mpfr_mul(temp2, wim, wre, MPFR_RNDN); mpfr_add(temp2, temp2, temp2, MPFR_RNDN);
                 mpfr_add(temp2, temp2, im, MPFR_RNDN); // add term
                 mpfr_set(wre, temp, MPFR_RNDN); mpfr_set(wim, temp2, MPFR_RNDN); // set values
                 // calculate bailout
@@ -153,7 +153,7 @@ void burningship_compute_pixels(uint start_x, uint end_x, uint height, uint widt
                 mpfr_sub(temp, temp, temp2, MPFR_RNDN);
                 mpfr_add(temp, temp, re, MPFR_RNDN); // add term
                 // do the imaginary calc
-                mpfr_mul(temp2, wim, wre, MPFR_RNDN); mpfr_mul(temp2, temp2, two, MPFR_RNDN);
+                mpfr_mul(temp2, wim, wre, MPFR_RNDN); mpfr_add(temp2, temp2, temp2, MPFR_RNDN);
                 mpfr_add(temp2, temp2, im, MPFR_RNDN); // add term
                 mpfr_set(wre, temp, MPFR_RNDN); mpfr_set(wim, temp2, MPFR_RNDN); // set values
                 // calculate bailout

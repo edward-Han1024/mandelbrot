@@ -181,6 +181,9 @@ libpng-1.6.50
 *.tar.gz
 png++-0.2.10
 mpfr-4.2.2
+zlib-1.3.1
+*.tar.xz
+gmp-6.3.0
 
 ## images
 images
@@ -189,3 +192,9 @@ images
 ## autotool results
 !configure
 !Makefile.in
+
+## build dir
+build
+
+## duplicate downloads
+*.1
