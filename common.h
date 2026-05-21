@@ -23,3 +23,5 @@
 #include<chrono>
 #include<mutex>
 #include<algorithm>
+#define uint uint64_t // ehh. I'll fix this later.
+#define u_long uint
