@@ -84,8 +84,8 @@ hsvToRgb (double h, double s, double v, uint &r, uint &g, uint &b)
 }
 
 /**
- * @brief the pixel given.
- * There is a long list of parameters but most of them are self-explanatory
+ * @brief compute the pixel given with high precision.
+ * There is a long list of parameters but most of them are self-explanatory. Usually there is no reason to run this function manually. It would be run with maindelbrot.
  * \c temp3 = units / one real pixel
  * \c temp4 = units / one imaginary pixel
  */
@@ -105,14 +105,8 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
   uint r = 0, g = 0, b = 0;
   // initialize variables
   mpfr_t px, py, temp, temp2, re, im, wre, wim;
-  mpfr_init2 (px, lowerprec);
-  mpfr_init2 (py, lowerprec);
-  mpfr_init2 (temp, precision);
-  mpfr_init2 (temp2, precision);
-  mpfr_init2 (re, precision);
-  mpfr_init2 (im, precision);
-  mpfr_init2 (wre, precision);
-  mpfr_init2 (wim, precision);
+  mpfr_inits2 (lowerprec, px, py, nullptr);
+  mpfr_inits2 (precision, temp, temp2, re, im, wre, wim, nullptr);
   // this is the loop itself
   mpfr_set_d (px, x, MPFR_RNDN); // a mpfr_t x value
   mpfr_set_d (py, y, MPFR_RNDN); // a mpfr_t y value
@@ -157,19 +151,12 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
     image[height - y - 1][x] = png::rgb_pixel (r, g, b);
   }
   // clear the (small amount of) mpfr_t variables we defined
-  mpfr_clear (px);
-  mpfr_clear (py);
-  mpfr_clear (temp);
-  mpfr_clear (temp2);
-  mpfr_clear (re);
-  mpfr_clear (im);
-  mpfr_clear (wre);
-  mpfr_clear (wim);
+  mpfr_clears (px, py, temp, temp2, re, im, wre, wim, nullptr);
 }
 
 /**
- * @brief the pixel given.
- * There is a long list of parameters but most of them are self-explanatory
+ * @brief Compute the pixel given with double precision.
+ * There is not much reason to call this manually. This would be called by mandelbrot. There is a long list of parameters but most of them are self-explanatory.
  * \c temp3 = units / one real pixel
  * \c temp4 = units / one imaginary pixel
  */
@@ -186,15 +173,10 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
   // init r g and b
   uint r = 0, g = 0, b = 0;
   // initialize variables
-  double px, py, temp, temp2, re, im, wre, wim;
+  double temp, temp2, re, im, wre, wim;
   // this is the loop itself
-  px = x;
-  py = y;
-  temp = temp3 * px;
-  re = minre + temp;
-  temp = temp4;
-  temp = temp4 * py;
-  im = minim + temp;
+  re = minre + temp3 * x; // calculate re
+  im = minim + temp4 * y; // calculate im
   wre = 0;
   wim = 0;
   uint t = 0; // the time
@@ -205,30 +187,24 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
       std::lock_guard<std::mutex> lock (image_mutex);
       image[height - y - 1][x] = png::rgb_pixel (0, 0, 0);
       return;
-    }
+    } // cardiod
   if ((re + 1) * (re + 1) + y * y <= 0.0625)
     {
       std::lock_guard<std::mutex> lock (image_mutex);
       image[height - y - 1][x] = png::rgb_pixel (0, 0, 0);
       return;
-    }
+    } // circle
   while (t < max_iterations)
     {
       // do the real calc
-      temp = wre * wre;
-      temp2 = wim * wim;
-      temp = temp - temp2;
-      temp = temp + re;
+      temp = wre * wre - wim * wim + re;
       // do the imaginary calc
       temp2 = wim * wre;
-      temp2 = temp2 + temp2;
-      temp2 = temp2 + im;
+      temp2 = temp2 + temp2 + im;
       wre = temp;
       wim = temp2;
       // calculate bailout
-      temp = wre * wre;
-      temp2 = wim * wim;
-      temp = temp + temp2;
+      temp = wre * wre + wim * wim;
       if (temp > bailout)
         break;
       ++t;
@@ -247,6 +223,10 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
   }
 }
 
+/**
+ * @breif Start a high precision worker.
+ * There is generally no need to call this manually. Calling mandelbrot is prefered.
+ */
 void
 mandelbrot_work (uint &x, uint &y, uint height, uint width,
                  uint max_iterations, uint colorlength, uint precision,
@@ -275,9 +255,12 @@ mandelbrot_work (uint &x, uint &y, uint height, uint width,
                                 minim, dim, scale, image, one, two, bailout,
                                 temp3, temp4);
     }
-  work_mutex.unlock ();
 }
 
+/**
+ * @breif Start a double precision worker.
+ * There is generally no need to call this function manually. Calling mandelbrot is prefered. This function has "double" in it instead of an overload as std::thread doesn't support overloads.
+ */
 void
 mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
                         uint max_iterations, uint colorlength, double minre,
@@ -306,6 +289,10 @@ mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
     }
 }
 
+/**
+ * @deprecated
+ */
+// TODO: REMOVE THIS FUNCTION (use thread pooling)
 void
 burningship_compute_pixels (uint start_x, uint end_x, uint height, uint width,
                             uint max_iterations, uint colorlength,
@@ -315,12 +302,6 @@ burningship_compute_pixels (uint start_x, uint end_x, uint height, uint width,
                             mpfr_t two, mpfr_t bailout, mpfr_t temp3,
                             mpfr_t temp4)
 {
-  /**
-   * @brief Computes the set of pixels given.
-   * There is a long list of parameters but most of them are self-explanatory
-   * \c temp3 = units / one real pixel
-   * \c temp4 = units / one imaginary pixel
-   */
   // init r g and b
   uint r = 0, g = 0, b = 0;
   // initialize variables
@@ -363,8 +344,8 @@ burningship_compute_pixels (uint start_x, uint end_x, uint height, uint width,
               mpfr_set (wre, temp, MPFR_RNDN);
               mpfr_set (wim, temp2, MPFR_RNDN); // set values
               // calculate bailout
-              mpfr_mul (temp, wre, wre, MPFR_RNDN);
-              mpfr_mul (temp2, wim, wim, MPFR_RNDN);
+              mpfr_sqr (temp, wre, MPFR_RNDN);
+              mpfr_sqr (temp2, wim, MPFR_RNDN);
               mpfr_add (temp, temp, temp2, MPFR_RNDN);
               if (mpfr_cmp (temp, bailout) > 0)
                 break;
@@ -395,15 +376,10 @@ burningship_compute_pixels (uint start_x, uint end_x, uint height, uint width,
   mpfr_clear (wim);
 }
 
-int
-mandelbrot (uint height, uint width, u_long precision, u_long loprec,
-            u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
-            const char *BAILOUT, const char *SCALE, uint max_iterations,
-            uint colorlength)
-{
-  /**
+/**
    * @brief the function to generate the mandelbrot fractal given the
    * parameters
+   * This overload expects strings and uses high precision arithmatic.
    * @param height (uint) the height of the image
    * @param width (uint) the width of the image
    * @param precision (u_long) the precision to use for the calculation
@@ -425,6 +401,12 @@ mandelbrot (uint height, uint width, u_long precision, u_long loprec,
    * @param colorlength the length of the palette
    * @returns (int) the status (exit value) 0 is no errors
    */
+int
+mandelbrot (uint height, uint width, u_long precision, u_long loprec,
+            u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
+            const char *BAILOUT, const char *SCALE, uint max_iterations,
+            uint colorlength)
+{
   mpfr_t centerre, centerim, minre, dre, minim, dim;
   mpfr_t bailout, one, two, temp3, temp4, aspect, scale;
   mpfr_t lotemp, pwidth, pheight;
@@ -483,9 +465,9 @@ mandelbrot (uint height, uint width, u_long precision, u_long loprec,
   for (uint i = 0; i < num_threads; ++i)
     {
       threads.push_back (std::thread (
-          mandelbrot_work, std::ref (x), std::ref (y), height, width,
-          max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
-          dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
+                                      mandelbrot_work, std::ref (x), std::ref (y), height, width,
+                                      max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
+                                      dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
@@ -570,9 +552,9 @@ mandelbrot (uint height, uint width, double centerre, double centerim,
   for (uint i = 0; i < num_threads; ++i)
     {
       threads.push_back (std::thread (
-          mandelbrot_work_double, std::ref (x), std::ref (y), height, width,
-          max_iterations, colorlength, minre, dre, minim, dim, scale,
-          std::ref (image), bailout, temp3, temp4));
+                                      mandelbrot_work_double, std::ref (x), std::ref (y), height, width,
+                                      max_iterations, colorlength, minre, dre, minim, dim, scale,
+                                      std::ref (image), bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
@@ -677,9 +659,9 @@ burningship (uint height, uint width, u_long precision, u_long loprec,
       uint start_x = i * chunk_size;
       uint end_x = (i == num_threads - 1) ? width : (i + 1) * chunk_size;
       threads.push_back (std::thread (
-          burningship_compute_pixels, start_x, end_x, height, width,
-          max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
-          dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
+                                      burningship_compute_pixels, start_x, end_x, height, width,
+                                      max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
+                                      dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
