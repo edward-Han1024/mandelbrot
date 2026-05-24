@@ -16,6 +16,8 @@
 
 // Note: the following headers are not mine. Somebody else made and copyrighted
 // them
+#pragma once
+
 #include<mpfr.h>
 #include<png++/png.hpp>
 #include<thread>

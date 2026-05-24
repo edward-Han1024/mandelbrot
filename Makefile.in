@@ -137,12 +137,17 @@ am__uninstall_files_from_dir = { \
   }
 LTLIBRARIES = $(lib_LTLIBRARIES)
 lib_libmandelbrot_la_LIBADD =
-am_lib_libmandelbrot_la_OBJECTS = mainmandelbrot.lo
+am_lib_libmandelbrot_la_OBJECTS = mainmandelbrot.lo util.lo \
+	mainburningship.lo
 lib_libmandelbrot_la_OBJECTS = $(am_lib_libmandelbrot_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+lib_libmandelbrot_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(AM_CXXFLAGS) $(CXXFLAGS) $(lib_libmandelbrot_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
 am__dirstamp = $(am__leading_dot)dirstamp
 am_bin_main_OBJECTS = main.$(OBJEXT)
 bin_main_OBJECTS = $(am_bin_main_OBJECTS)
@@ -166,7 +171,8 @@ DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/main.Po \
-	./$(DEPDIR)/mainmandelbrot.Plo
+	./$(DEPDIR)/mainburningship.Plo ./$(DEPDIR)/mainmandelbrot.Plo \
+	./$(DEPDIR)/util.Plo
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -365,7 +371,8 @@ AUTOMAKE_OPTIONS = subdir-objects
 ACLOCAL_AMFLAGS = -I m4
 # libs
 lib_LTLIBRARIES = lib/libmandelbrot.la
-lib_libmandelbrot_la_SOURCES = mainmandelbrot.cpp
+lib_libmandelbrot_la_SOURCES = mainmandelbrot.cpp util.cpp mainburningship.cpp
+lib_libmandelbrot_la_LDFLAGS = -lgmp -lpng -lmpfr
 bin_main_SOURCES = main.cpp
 bin_main_LDADD = lib/libmandelbrot.la
 bin_main_LDFLAGS = -lgmp -lpng -lmpfr
@@ -488,7 +495,7 @@ lib/$(am__dirstamp):
 	@: >>lib/$(am__dirstamp)
 
 lib/libmandelbrot.la: $(lib_libmandelbrot_la_OBJECTS) $(lib_libmandelbrot_la_DEPENDENCIES) $(EXTRA_lib_libmandelbrot_la_DEPENDENCIES) lib/$(am__dirstamp)
-	$(AM_V_CXXLD)$(CXXLINK) -rpath $(libdir) $(lib_libmandelbrot_la_OBJECTS) $(lib_libmandelbrot_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(lib_libmandelbrot_la_LINK) -rpath $(libdir) $(lib_libmandelbrot_la_OBJECTS) $(lib_libmandelbrot_la_LIBADD) $(LIBS)
 bin/$(am__dirstamp):
 	@$(MKDIR_P) bin
 	@: >>bin/$(am__dirstamp)
@@ -504,7 +511,9 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mainburningship.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mainmandelbrot.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -826,7 +835,9 @@ clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/mainburningship.Plo
 	-rm -f ./$(DEPDIR)/mainmandelbrot.Plo
+	-rm -f ./$(DEPDIR)/util.Plo
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-libtool distclean-tags
@@ -875,7 +886,9 @@ maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
 	-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/mainburningship.Plo
 	-rm -f ./$(DEPDIR)/mainmandelbrot.Plo
+	-rm -f ./$(DEPDIR)/util.Plo
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
