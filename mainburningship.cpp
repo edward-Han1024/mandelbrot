@@ -50,8 +50,8 @@ burningship_compute_pixel (uint x, uint y, uint height, uint width,
   uint t = 0; // the time
   while (t < max_iterations)
     {
-      mpfr_abs(wre, wre, MPFR_RNDN);
-      mpfr_abs(wre, wre, MPFR_RNDN);
+      mpfr_abs (wre, wre, MPFR_RNDN);
+      mpfr_abs (wre, wre, MPFR_RNDN);
       // do the real calc
       mpfr_sqr (temp, wre, MPFR_RNDN);
       mpfr_sqr (temp2, wim, MPFR_RNDN);
@@ -121,9 +121,10 @@ burningship_compute_pixel (uint x, uint y, uint height, uint width,
       image[height - y - 1][x] = png::rgb_pixel (0, 0, 0);
       return;
     } // circle
-    while (t < max_iterations) {
-      wre = std::abs(wre);
-      wim = std::abs(wim);
+  while (t < max_iterations)
+    {
+      wre = std::abs (wre);
+      wim = std::abs (wim);
       // do the real calc
       temp = wre * wre - wim * wim + re;
       // do the imaginary calc
@@ -219,9 +220,11 @@ burningship (uint height, uint width, u_long precision, u_long loprec,
   mpfr_t bailout, one, two, temp3, temp4, aspect, scale;
   mpfr_t lotemp, pwidth, pheight;
   // init
-  mpfr_inits2(precision, centerre, centerim, temp3, temp4, minre, dre, minim, dim, nullptr);
-  mpfr_inits2(loprec, aspect, scale, lotemp, bailout, pwidth, pheight, nullptr);
-  mpfr_inits2(lowerprec, one, two, nullptr);
+  mpfr_inits2 (precision, centerre, centerim, temp3, temp4, minre, dre, minim,
+               dim, nullptr);
+  mpfr_inits2 (loprec, aspect, scale, lotemp, bailout, pwidth, pheight,
+               nullptr);
+  mpfr_inits2 (lowerprec, one, two, nullptr);
   // values
   mpfr_set_d (pwidth, width, MPFR_RNDN);
   mpfr_set_d (pheight, height, MPFR_RNDN);
@@ -231,7 +234,7 @@ burningship (uint height, uint width, u_long precision, u_long loprec,
   mpfr_strtofr (bailout, BAILOUT, nullptr, 10, MPFR_RNDN);
   mpfr_strtofr (scale, SCALE, nullptr, 10, MPFR_RNDN);
   // aspect ratio needs a calculation
-  mpfr_set_d (aspect, width / (double) height, MPFR_RNDN);
+  mpfr_set_d (aspect, width / (double)height, MPFR_RNDN);
   // it's useful for us to have integer values here
   mpfr_set_d (one, 1, MPFR_RNDN);
   mpfr_set_d (two, 2, MPFR_RNDN);
@@ -259,9 +262,9 @@ burningship (uint height, uint width, u_long precision, u_long loprec,
   for (uint i = 0; i < num_threads; ++i)
     {
       threads.push_back (std::thread (
-                                      burningship_work, std::ref (x), std::ref (y), height, width,
-                                      max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
-                                      dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
+          burningship_work, std::ref (x), std::ref (y), height, width,
+          max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
+          dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
@@ -276,7 +279,8 @@ burningship (uint height, uint width, u_long precision, u_long loprec,
       return 1;
     }
   // clear the (relatively more) variables we used
-  mpfr_clears (centerre, centerim, aspect, scale, lotemp, bailout, one, two, temp4, temp4, minre, dre, minim, dim, pwidth, pheight, nullptr);
+  mpfr_clears (centerre, centerim, aspect, scale, lotemp, bailout, one, two,
+               temp4, temp4, minre, dre, minim, dim, pwidth, pheight, nullptr);
   return 0;
 }
 
@@ -313,9 +317,9 @@ burningship (uint height, uint width, double centerre, double centerim,
   for (uint i = 0; i < num_threads; ++i)
     {
       threads.push_back (std::thread (
-                                      burningship_work_double, std::ref (x), std::ref (y), height, width,
-                                      max_iterations, colorlength, minre, dre, minim, dim, scale,
-                                      std::ref (image), bailout, temp3, temp4));
+          burningship_work_double, std::ref (x), std::ref (y), height, width,
+          max_iterations, colorlength, minre, dre, minim, dim, scale,
+          std::ref (image), bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
@@ -331,4 +335,3 @@ burningship (uint height, uint width, double centerre, double centerim,
     }
   return 0;
 }
-

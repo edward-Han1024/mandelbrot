@@ -25,15 +25,16 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
                           uint max_iterations, uint colorlength,
                           uint precision, uint lowerprec, mpfr_t minre,
                           mpfr_t dre, mpfr_t minim, mpfr_t dim, mpfr_t scale,
-                          png::image<png::rgb_pixel> &image, mpfr_t one,
-                          mpfr_t two, mpfr_t bailout, mpfr_t temp3,
-                          mpfr_t temp4)
+                          png::image<png::rgb_pixel> &image, mpfr_t bailout,
+                          mpfr_t temp3, mpfr_t temp4)
 {
   if (y == height)
-    return;
-  //  std::cout << "Called on x: " << x << "and y: " << y << std::endl;
+    {
+      return;
+    }
+  // std::cout << "Called on x: " << x << "and y: " << y << std::endl;
   // init r g and b
-  uint r = 0, g = 0, b = 0;
+  uint64_t r = 0, g = 0, b = 0;
   // initialize variables
   mpfr_t px, py, temp, temp2, re, im, wre, wim;
   mpfr_inits2 (lowerprec, px, py, nullptr);
@@ -47,7 +48,7 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
   mpfr_add (im, minim, temp, MPFR_RNDN); // calculate im
   mpfr_set_d (wre, 0, MPFR_RNDN);
   mpfr_set_d (wim, 0, MPFR_RNDN);
-  uint t = 0; // the time
+  uint64_t t = 0; // the time
   while (t < max_iterations)
     {
       // do the real calc
@@ -86,9 +87,10 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
 }
 
 void
-mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
-                          uint max_iterations, uint colorlength, double minre,
-                          double dre, double minim, double dim, double scale,
+mandelbrot_compute_pixel (uint64_t x, uint64_t y, uint64_t height,
+                          uint64_t width, uint64_t max_iterations,
+                          uint64_t colorlength, double minre, double dre,
+                          double minim, double dim, double scale,
                           png::image<png::rgb_pixel> &image, double bailout,
                           double temp3, double temp4)
 {
@@ -96,7 +98,7 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
     return;
   //  std::cout << "Called on x: " << x << "and y: " << y << std::endl;
   // init r g and b
-  uint r = 0, g = 0, b = 0;
+  uint64_t r = 0, g = 0, b = 0;
   // initialize variables
   double temp, temp2, re, im, wre, wim;
   // this is the loop itself
@@ -104,7 +106,7 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
   im = minim + temp4 * y; // calculate im
   wre = 0;
   wim = 0;
-  uint t = 0; // the time
+  uint64_t t = 0; // the time
   // do bulb checking.
   double q = (re - 0.25) * (re - 0.25) + y * y;
   if (q * (q + re - 0.25) <= 0.25 * y * y)
@@ -149,17 +151,17 @@ mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
 }
 
 void
-mandelbrot_work (uint &x, uint &y, uint height, uint width,
-                 uint max_iterations, uint colorlength, uint precision,
-                 uint lowerprec, mpfr_t minre, mpfr_t dre, mpfr_t minim,
-                 mpfr_t dim, mpfr_t scale, png::image<png::rgb_pixel> &image,
-                 mpfr_t one, mpfr_t two, mpfr_t bailout, mpfr_t temp3,
-                 mpfr_t temp4)
+mandelbrot_work (uint64_t &x, uint64_t &y, uint64_t height, uint64_t width,
+                 uint64_t max_iterations, uint64_t colorlength,
+                 uint64_t precision, uint64_t lowerprec, mpfr_t minre,
+                 mpfr_t dre, mpfr_t minim, mpfr_t dim, mpfr_t scale,
+                 png::image<png::rgb_pixel> &image, mpfr_t bailout,
+                 mpfr_t temp3, mpfr_t temp4)
 {
   while ((x < width) && (y < height))
     {
       // std::cout << "[" << x << y << "]" <<  std::endl;
-      uint work_x, work_y;
+      uint64_t work_x, work_y;
       { // Scope for work update.
         std::lock_guard<std::mutex> lock (mandel_work_mutex);
         work_x = x;
@@ -173,22 +175,23 @@ mandelbrot_work (uint &x, uint &y, uint height, uint width,
       }
       mandelbrot_compute_pixel (work_x, work_y, height, width, max_iterations,
                                 colorlength, precision, lowerprec, minre, dre,
-                                minim, dim, scale, image, one, two, bailout,
-                                temp3, temp4);
+                                minim, dim, scale, image, bailout, temp3,
+                                temp4);
     }
 }
 
 void
-mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
-                        uint max_iterations, uint colorlength, double minre,
-                        double dre, double minim, double dim, double scale,
+mandelbrot_work_double (uint64_t &x, uint64_t &y, uint64_t height,
+                        uint64_t width, uint64_t max_iterations,
+                        uint64_t colorlength, double minre, double dre,
+                        double minim, double dim, double scale,
                         png::image<png::rgb_pixel> &image, double bailout,
                         double temp3, double temp4)
 {
   while ((x < width) && (y < height))
     {
       // std::cout << "[" << x << y << "]" <<  std::endl;
-      uint work_x, work_y;
+      uint64_t work_x, work_y;
       { // Scope for work update.
         std::lock_guard<std::mutex> lock (mandel_work_mutex);
         work_x = x;
@@ -207,18 +210,20 @@ mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
 }
 
 int
-mandelbrot (uint height, uint width, u_long precision, u_long loprec,
+mandelbrot (uint64_t height, uint64_t width, u_long precision, u_long loprec,
             u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
-            const char *BAILOUT, const char *SCALE, uint max_iterations,
-            uint colorlength)
+            const char *BAILOUT, const char *SCALE, uint64_t max_iterations,
+            uint64_t colorlength)
 {
   mpfr_t centerre, centerim, minre, dre, minim, dim;
   mpfr_t bailout, one, two, temp3, temp4, aspect, scale;
   mpfr_t lotemp, pwidth, pheight;
   // init
-  mpfr_inits2(precision, centerre, centerim, temp3, temp4, minre, dre, minim, dim, nullptr);
-  mpfr_inits2(loprec, aspect, scale, lotemp, bailout, pwidth, pheight, nullptr);
-  mpfr_inits2(lowerprec, one, two, nullptr);
+  mpfr_inits2 (precision, centerre, centerim, temp3, temp4, minre, dre, minim,
+               dim, nullptr);
+  mpfr_inits2 (loprec, aspect, scale, lotemp, bailout, pwidth, pheight,
+               nullptr);
+  mpfr_inits2 (lowerprec, one, two, nullptr);
   // values
   mpfr_set_d (pwidth, width, MPFR_RNDN);
   mpfr_set_d (pheight, height, MPFR_RNDN);
@@ -228,17 +233,15 @@ mandelbrot (uint height, uint width, u_long precision, u_long loprec,
   mpfr_strtofr (bailout, BAILOUT, nullptr, 10, MPFR_RNDN);
   mpfr_strtofr (scale, SCALE, nullptr, 10, MPFR_RNDN);
   // aspect ratio needs a calculation
-  mpfr_set_d (aspect, width / (double) height, MPFR_RNDN);
+  mpfr_set_d (aspect, width / (double)height, MPFR_RNDN);
   // it's useful for us to have integer values here
-  mpfr_set_d (one, 1, MPFR_RNDN);
-  mpfr_set_d (two, 2, MPFR_RNDN);
   // calculation it looks like machine code :(
   // calculate real range
   mpfr_div (lotemp, aspect, scale, MPFR_RNDN);
   mpfr_sub (minre, centerre, lotemp, MPFR_RNDN);
   mpfr_add (dre, lotemp, lotemp, MPFR_RNDN);
   // calculation imaginary range
-  mpfr_div (lotemp, one, scale, MPFR_RNDN);
+  mpfr_ui_div (lotemp, 1, scale, MPFR_RNDN);
   mpfr_sub (minim, centerim, lotemp, MPFR_RNDN);
   mpfr_add (dim, lotemp, lotemp, MPFR_RNDN);
   // calculate temp3 and temp4 for speed
@@ -248,17 +251,17 @@ mandelbrot (uint height, uint width, u_long precision, u_long loprec,
   // std::cout << "CONFIG: ceneterre:" << CENTERRE << "centerim:" << CENTERIM
   //           << "scale:" << SCALE << "precision:" << precision << std::endl;
   // threads work
-  uint num_threads = std::thread::hardware_concurrency ();
+  uint64_t num_threads = std::thread::hardware_concurrency ();
   std::vector<std::thread> threads;
-  uint x = 0;
-  uint y = 0;
+  uint64_t x = 0;
+  uint64_t y = 0;
 
-  for (uint i = 0; i < num_threads; ++i)
+  for (uint64_t i = 0; i < num_threads; ++i)
     {
       threads.push_back (std::thread (
-                                      mandelbrot_work, std::ref (x), std::ref (y), height, width,
-                                      max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
-                                      dim, scale, std::ref (image), one, two, bailout, temp3, temp4));
+          mandelbrot_work, std::ref (x), std::ref (y), height, width,
+          max_iterations, colorlength, precision, lowerprec, minre, dre, minim,
+          dim, scale, std::ref (image), bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
@@ -273,14 +276,15 @@ mandelbrot (uint height, uint width, u_long precision, u_long loprec,
       return 1;
     }
   // clear the (relatively more) variables we used
-  mpfr_clears (centerre, centerim, aspect, scale, lotemp, bailout, one, two, temp4, temp4, minre, dre, minim, dim, pwidth, pheight, nullptr);
+  mpfr_clears (centerre, centerim, aspect, scale, lotemp, bailout, one, two,
+               temp4, temp4, minre, dre, minim, dim, pwidth, pheight, nullptr);
   return 0;
 }
 
 int
-mandelbrot (uint height, uint width, double centerre, double centerim,
-            double bailout, double scale, uint max_iterations,
-            uint colorlength)
+mandelbrot (uint64_t height, uint64_t width, double centerre, double centerim,
+            double bailout, double scale, uint64_t max_iterations,
+            uint64_t colorlength)
 {
   double minre, dre, minim, dim, temp3, temp4, aspect, lotemp;
   // init
@@ -302,17 +306,17 @@ mandelbrot (uint height, uint width, double centerre, double centerim,
   std::cout << "CONFIG: ceneterre:" << centerre << "centerim:" << centerim
             << "scale:" << scale << "(double)" << std::endl;
   // threads work
-  uint num_threads = std::thread::hardware_concurrency ();
+  uint64_t num_threads = std::thread::hardware_concurrency ();
   std::vector<std::thread> threads;
-  uint x = 0;
-  uint y = 0;
+  uint64_t x = 0;
+  uint64_t y = 0;
 
-  for (uint i = 0; i < num_threads; ++i)
+  for (uint64_t i = 0; i < num_threads; ++i)
     {
       threads.push_back (std::thread (
-                                      mandelbrot_work_double, std::ref (x), std::ref (y), height, width,
-                                      max_iterations, colorlength, minre, dre, minim, dim, scale,
-                                      std::ref (image), bailout, temp3, temp4));
+          mandelbrot_work_double, std::ref (x), std::ref (y), height, width,
+          max_iterations, colorlength, minre, dre, minim, dim, scale,
+          std::ref (image), bailout, temp3, temp4));
     }
   // Join all threads
   std::for_each (threads.begin (), threads.end (),
@@ -328,4 +332,3 @@ mandelbrot (uint height, uint width, double centerre, double centerim,
     }
   return 0;
 }
-

@@ -6,7 +6,7 @@
  * There is a long list of parameters but most of them are self-explanatory.
  * Usually there is no reason to run this function manually. It would be run
  * with mandelbrot.
- * 
+ *
  * @param temp3 units / one real pixel
  * @param temp4 units / one imaginary pixel
  */
@@ -35,9 +35,9 @@ void mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
 
 /**
  * @breif Start a double precision worker.
- * There is generally no need to call this function manually. Calling mandelbrot
- * is prefered. This function has "double" in it instead of an overload as
- * std::thread doesn't support overloads.
+ * There is generally no need to call this function manually. Calling
+ * mandelbrot is prefered. This function has "double" in it instead of an
+ * overload as std::thread doesn't support overloads.
  */
 void mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
                              uint max_iterations, uint colorlength,
@@ -66,13 +66,15 @@ void mandelbrot_work (uint &x, uint &y, uint height, uint width,
  * This function currently uses the mpfr library to do arbitrary precision
  * arithmetic. If the necessary precision is 53 bits or lower, please use the
  * other function instead, as that will be much faster.
- 
+
  * This specific function currently does not use bulb checking for the cardiod
  * and the bulb to the left. It currently uses the basic escape speed method.
- * The coloring method achieved by this function is a hsv gradient with h adjusted,
- * and s and v constant. The colorlength is how many iterations it would take to
+ * The coloring method achieved by this function is a hsv gradient with h
+ adjusted,
+ * and s and v constant. The colorlength is how many iterations it would take
+ to
  * fully cycle through the palette.
- * 
+ *
  * @param height (uint) the height of the image
  * @param width (uint) the width of the image
  * @param precision (u_long) the precision to use for the calculation
@@ -95,29 +97,30 @@ void mandelbrot_work (uint &x, uint &y, uint height, uint width,
  * @returns (int) the status (exit value) 0 is no errors
  */
 int mandelbrot (uint height, uint width, u_long precision, u_long loprec,
-		u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
-		const char *BAILOUT, const char *SCALE, uint max_iterations,
-		uint colorlength);
+                u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
+                const char *BAILOUT, const char *SCALE, uint max_iterations,
+                uint colorlength);
 
 /**
  * @brief Generate the mandelbrot fractal given parameters, but without
  * arbitrary precision support.
- * 
+ *
  * This function uses double precision, which is equivalent to 53 bits in mpfr.
  * Thus, if the precision is set to less than 53 in the arbitrary precision
  * function, then this overload should be used instead.
  *
  * This specific function currently uses bulb checking for the cardiod and the
  * bulb to the left. It currently uses the basic escape speed method. The
- * coloring method achieved by this function is a hsv gradient with h adjusted, and
- * s and v constant. The colorlength is how many iterations it would take to fully
- * cycle through the palette.
+ * coloring method achieved by this function is a hsv gradient with h adjusted,
+ * and s and v constant. The colorlength is how many iterations it would take
+ * to fully cycle through the palette.
  *
  * @param height (uint) the height of the image
  * @param width (uint) the width of the image
  * @param centerre (double) the center of the real axis
  * @param centerim (double) the center of the imaginary axis
- * @param bailout (double)  the square of the distance away from the origin needed to be considered as diverged
+ * @param bailout (double)  the square of the distance away from the origin
+ * needed to be considered as diverged
  * @param scale (double) the scale of the image (zoom)
  * @param max_iterations the maximum number of iterations
  * @param colorlength the length of the palette
@@ -126,4 +129,3 @@ int mandelbrot (uint height, uint width, u_long precision, u_long loprec,
 int mandelbrot (uint height, uint width, double centerre, double centerim,
                 double bailout, double scale, uint max_iterations,
                 uint colorlength);
-

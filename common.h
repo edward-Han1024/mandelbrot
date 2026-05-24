@@ -18,12 +18,12 @@
 // them
 #pragma once
 
-#include<mpfr.h>
-#include<png++/png.hpp>
-#include<thread>
-#include<random>
-#include<chrono>
-#include<mutex>
-#include<algorithm>
+#include <algorithm>
+#include <chrono>
+#include <mpfr.h>
+#include <mutex>
+#include <png++/png.hpp>
+#include <random>
+#include <thread>
 #define uint uint64_t // ehh. I'll fix this later.
 #define u_long uint
