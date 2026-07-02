@@ -13,4 +13,5 @@
  * @param b (uint&) A pointer to the uint to store the value of b. The range
  * will be [0, 255].
  */
-void hsvToRgb (double h, double s, double v, uint &r, uint &g, uint &b);
+void hsvToRgb(double h, double s, double v, uint &r, uint &g, uint &b);
+png::rgb_pixel grad_0(double t);

@@ -17,8 +17,10 @@
 // Note: the following headers are not mine. Somebody else made and copyrighted
 // them
 #pragma once
-
+#ifndef COMMON_H
+#define COMMON_H
 #include <algorithm>
+#include <boost/math/interpolators/pchip.hpp>
 #include <chrono>
 #include <mpfr.h>
 #include <mutex>
@@ -27,3 +29,5 @@
 #include <thread>
 #define uint uint64_t // ehh. I'll fix this later.
 #define u_long uint
+using boost::math::interpolators::pchip;
+#endif
