@@ -27,7 +27,8 @@ add_library(mandelbrot SHARED
 )
 
 target_sources(mandelbrot
-    PUBLIC FILE_SET HEADERS
+    PUBLIC FILE_SET headers
+    TYPE HEADERS
     BASE_DIRS "include"
     FILES 
         include/mandelbrot.h
@@ -51,6 +52,7 @@ target_link_libraries(main
 
 install(TARGETS mandelbrot
     LIBRARY DESTINATION lib
+    FILE_SET headers DESTINATION include
 )
 
 install(TARGETS main
