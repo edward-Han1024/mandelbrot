@@ -87,50 +87,46 @@ void mandelbrot_compute_pixel(uint64_t x, uint64_t y, uint64_t height,
                               double minim, double dim, double scale,
                               png::image<png::rgb_pixel> &image, double bailout,
                               double temp3, double temp4) {
-    if (y == height)
-        return;
     //  std::cout << "Called on x: " << x << "and y: " << y << std::endl;
     // initialize variables
-    double temp, re, im, wre, wim, wre2, wim2;
+    double temp, re, im, wre, wim, wre2, wim2, temp2;
     // this is the loop itself
-    re = minre + temp3 * x; // calculate re
-    im = minim + temp4 * y; // calculate im
+    re = std::fma(temp3, x, minre); // calculate re
+    im = std::fma(temp4, y, minim); // calculate im
     wre = 0;
     wim = 0;
     wre2 = 0;
     wim2 = 0;
     uint64_t t = 0; // the time
     // do bulb checking.
-    double q = (re - 0.25) * (re - 0.25) + im * im;
-    if (q * (q + re - 0.25) <= 0.25 * im * im) {
-        std::lock_guard<std::mutex> lock(mandel_image_mutex);
+    temp = re - 0.25;
+    double q = std::fma(temp, temp, im * im);
+    temp2 = q * (q + re);
+    temp2 = temp2 + temp2;
+    if (temp2 + temp2 <= std::fma(im, im, q)) {
         image[height - y - 1][x] = png::rgb_pixel(0, 0, 0);
         return;
     } // cardiod
-    if ((re + 1) * (re + 1) + im * im <= 0.0625) {
-        std::lock_guard<std::mutex> lock(mandel_image_mutex);
+    temp += 1.25;
+    if (std::fma(temp, temp, im * im) <= 0.0625) {
         image[height - y - 1][x] = png::rgb_pixel(0, 0, 0);
         return;
     } // circle
-    while (t < max_iterations) {
+    while (t < max_iterations && wim2 + wre2 < bailout) {
         wre2 = wre * wre;
         wim2 = wim * wim;
         temp = wim * wre;
         wim = temp + temp + im;
         wre = wre2 - wim2 + re;
-        if (wim2 + wre2 > bailout)
-            break;
         ++t;
     }
     // store pixels
     if (t == max_iterations) {
-        std::lock_guard<std::mutex> lock(mandel_image_mutex);
         image[height - y - 1][x] = png::rgb_pixel(0, 0, 0);
     } else {
         // Use smooth coloring. iters + 1 - log(log(rad))/log(2)
-        double tp = std::fmod(
-            (((double)t) + 1 - log2(log(wre2 + wim2))) / colorlength, 1.);
-        std::lock_guard<std::mutex> lock(mandel_image_mutex);
+        double tp =
+            std::fmod((((double)t) - log2(log(wre2 + wim2))) / colorlength, 1.);
         image[height - y - 1][x] = grad_0(tp);
     }
 }
@@ -161,28 +157,19 @@ void mandelbrot_work(uint64_t &x, uint64_t &y, uint64_t height, uint64_t width,
     }
 }
 
-void mandelbrot_work_double(uint64_t &x, uint64_t &y, uint64_t height,
+void mandelbrot_work_double(std::atomic<uint64_t> &x, uint64_t height,
                             uint64_t width, uint64_t max_iterations,
                             uint64_t colorlength, double minre, double dre,
                             double minim, double dim, double scale,
                             png::image<png::rgb_pixel> &image, double bailout,
                             double temp3, double temp4) {
-    while ((x < width) && (y < height)) {
-        // std::cout << "[" << x << y << "]" <<  std::endl;
-        uint64_t work_x, work_y;
-        { // Scope for work update.
-            std::lock_guard<std::mutex> lock(mandel_work_mutex);
-            work_x = x;
-            work_y = y;
-            x++;
-            if (x == width) {
-                x = 0;
-                y++;
-            }
-        }
-        mandelbrot_compute_pixel(work_x, work_y, height, width, max_iterations,
-                                 colorlength, minre, dre, minim, dim, scale,
-                                 image, bailout, temp3, temp4);
+    uint64_t size = width * height;
+    uint64_t work_x = x.fetch_add(1);
+    while (work_x < size) {
+        mandelbrot_compute_pixel(work_x % width, work_x / width, height, width,
+                                 max_iterations, colorlength, minre, dre, minim,
+                                 dim, scale, image, bailout, temp3, temp4);
+        work_x = x.fetch_add(1);
     }
 }
 
@@ -254,12 +241,10 @@ int mandelbrot(uint64_t height, uint64_t width, u_long precision, u_long loprec,
 
 int mandelbrot(uint64_t height, uint64_t width, double centerre,
                double centerim, double bailout, double scale,
-               uint64_t max_iterations, uint64_t colorlength) {
+               uint64_t max_iterations, uint64_t colorlength,
+               std::string filename) {
     double minre, dre, minim, dim, temp3, temp4, aspect, lotemp;
-    // init
-    // values
     aspect = width / (double)height;
-    // calculation it looks like machine code :(
     // calculate real
     lotemp = aspect / scale;
     minre = centerre - lotemp;
@@ -267,30 +252,29 @@ int mandelbrot(uint64_t height, uint64_t width, double centerre,
     // calculation imaginary range
     lotemp = 1 / scale;
     minim = centerim - lotemp;
-    dim = 2 * lotemp;
-    // calculate temp3 and temp4 for speed
+    dim = lotemp + lotemp;
+    // calculate temp3 and temp4 for speed (per pixel values)
     temp3 = dre / width;
     temp4 = dim / height;
     png::image<png::rgb_pixel> image(width, height);
-    std::cout << "CONFIG: ceneterre:" << centerre << "centerim:" << centerim
-              << "scale:" << scale << "(double)" << std::endl;
+    // std::cout << "CONFIG: ceneterre:" << centerre << "centerim:" << centerim
+    //   << "scale:" << scale << "(double)" << std::endl;
     // threads work
     uint64_t num_threads = std::thread::hardware_concurrency();
     std::vector<std::thread> threads;
-    uint64_t x = 0;
-    uint64_t y = 0;
+    std::atomic<uint64_t> x{0};
 
     for (uint64_t i = 0; i < num_threads; ++i) {
-        threads.push_back(std::thread(
-            mandelbrot_work_double, std::ref(x), std::ref(y), height, width,
-            max_iterations, colorlength, minre, dre, minim, dim, scale,
-            std::ref(image), bailout, temp3, temp4));
+        threads.push_back(
+            std::thread(mandelbrot_work_double, std::ref(x), height, width,
+                        max_iterations, colorlength, minre, dre, minim, dim,
+                        scale, std::ref(image), bailout, temp3, temp4));
     }
     // Join all threads
     std::for_each(threads.begin(), threads.end(),
                   [](std::thread &t) { t.join(); });
     try {
-        image.write("img.png");
+        image.write(filename);
     } catch (const png::error &e) {
         std::cerr << "Error writing PNG: " << e.what() << std::endl;
         return 1;

@@ -44,9 +44,9 @@ png::rgb_pixel grad_0(double t) {
     static std::vector<double> grad0_g{7., 107., 255., 170., 2., 7.};
     static std::vector<double> grad0_b{100., 203., 255., 0., 0., 100.};
     static auto spline0_r = pchip(std::move(grad0_c), std::move(grad0_r));
-    grad0_c = std::vector<double>{0.0, 0.16, 0.42, 0.6425, 0.8575, 1};
-    static auto spline0_g = pchip(std::move(grad0_c), std::move(grad0_g));
-    grad0_c = std::vector<double>{0.0, 0.16, 0.42, 0.6425, 0.8575, 1};
-    static auto spline0_b = pchip(std::move(grad0_c), std::move(grad0_b));
+    static std::vector<double> grad0_c1 = std::vector<double>{0.0, 0.16, 0.42, 0.6425, 0.8575, 1};
+    static auto spline0_g = pchip(std::move(grad0_c1), std::move(grad0_g));
+    static std::vector<double> grad0_c2 = std::vector<double>{0.0, 0.16, 0.42, 0.6425, 0.8575, 1};
+    static auto spline0_b = pchip(std::move(grad0_c2), std::move(grad0_b));
     return png::rgb_pixel(spline0_r(t), spline0_g(t), spline0_b(t));
 }

@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+include(CheckIncludeFiles)
 
 project(mandelbrot VERSION 0.1 LANGUAGES CXX)
 
@@ -18,6 +19,24 @@ endif()
 find_package(PNG REQUIRED)
 find_library(GMP_LIBRARY gmp REQUIRED)
 find_library(MPFR_LIBRARY mpfr REQUIRED)
+check_include_files(gmp.h GMP_H)
+if(NOT GMP_H)
+message(WARNING GMP is a required dependency of MPFR. The header gmp.h was not found.)
+message(WARNING This most likely means GMP and MPFR wasn't installed correctly.)
+endif()
+check_include_files(mpfr.h MPFR_H)
+if(NOT MPFR_H)
+message(SEND_ERROR MPFR is a required dependency. The header mpfr.h was not found.)
+endif()
+check_include_files(boost/math/interpolators/pchip.hpp BOOST_PCHIP_HPP)
+if(NOT BOOST_PCHIP_HPP)
+message(SEND_ERROR Boost is a required dependency. The header boost/math/interpolators/pchip.hpp was not found.)
+endif()
+check_include_files(png++/png.hpp PNG_HPP)
+if(NOT PNG_HPP)
+message(SEND_ERROR PNG++ is a required dependency. The header png++/png.hpp was not found.)
+endif()
+
 
 # targets
 add_library(mandelbrot SHARED

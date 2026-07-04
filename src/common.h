@@ -27,6 +27,7 @@
 #include <png++/png.hpp>
 #include <random>
 #include <thread>
+#include <atomic>
 #define uint uint64_t // ehh. I'll fix this later.
 #define u_long uint
 using boost::math::interpolators::pchip;

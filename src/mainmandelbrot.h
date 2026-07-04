@@ -34,12 +34,13 @@ void mandelbrot_compute_pixel (uint x, uint y, uint height, uint width,
                                double bailout, double temp3, double temp4);
 
 /**
- * @breif Start a double precision worker.
+ * @brief Start a double precision worker.
+ * 
  * There is generally no need to call this function manually. Calling
  * mandelbrot is prefered. This function has "double" in it instead of an
  * overload as std::thread doesn't support overloads.
  */
-void mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
+void mandelbrot_work_double (std::atomic<uint64_t> &x, uint height, uint width,
                              uint max_iterations, uint colorlength,
                              double minre, double dre, double minim,
                              double dim, double scale,
@@ -47,7 +48,7 @@ void mandelbrot_work_double (uint &x, uint &y, uint height, uint width,
                              double temp3, double temp4);
 
 /**
- * @breif Start a high precision worker.
+ * @brief Start a high precision worker.
  *
  * There is generally no need to call this manually. Calling mandelbrot is
  * prefered.
@@ -60,7 +61,7 @@ void mandelbrot_work (uint &x, uint &y, uint height, uint width,
                       mpfr_t two, mpfr_t bailout, mpfr_t temp3, mpfr_t temp4);
 
 /**
- * @breif Generate the mandelbrot fractal given the parameters using arbirtrary
+ * @brief Generate the mandelbrot fractal given the parameters using arbirtrary
  * precision arithmetic.
  *
  * This function currently uses the mpfr library to do arbitrary precision
@@ -128,4 +129,4 @@ int mandelbrot (uint height, uint width, u_long precision, u_long loprec,
  */
 int mandelbrot (uint height, uint width, double centerre, double centerim,
                 double bailout, double scale, uint max_iterations,
-                uint colorlength);
+                uint colorlength, std::string filename);

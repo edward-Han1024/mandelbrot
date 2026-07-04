@@ -20,11 +20,12 @@
 #ifndef MANDELBROT_H
 #define MANDELBROT_H
 #include <cstdint>
+#include <string>
 
 #define uint uint64_t
 #define u_long uint
 /**
- * @breif Generate the mandelbrot fractal given the parameters using arbirtrary
+ * @brief Generate the mandelbrot fractal given the parameters using arbirtrary
  * precision arithmetic.
  *
  * This function currently uses the mpfr library to do arbitrary precision
@@ -60,10 +61,10 @@
  * @param colorlength the length of the palette
  * @returns (int) the status (exit value) 0 is no errors
  */
-int mandelbrot(uint height, uint width, u_long precision, u_long loprec,
-               u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
-               const char *BAILOUT, const char *SCALE, uint max_iterations,
-               uint colorlength);
+int mandelbrot (uint height, uint width, u_long precision, u_long loprec,
+                u_long lowerprec, const char *CENTERRE, const char *CENTERIM,
+                const char *BAILOUT, const char *SCALE, uint max_iterations,
+                uint colorlength);
 
 /**
  * @brief Generate the mandelbrot fractal given parameters, but without
@@ -90,9 +91,9 @@ int mandelbrot(uint height, uint width, u_long precision, u_long loprec,
  * @param colorlength the length of the palette
  * @returns (int) the status (exit value) 0 is no errors
  */
-int mandelbrot(uint height, uint width, double centerre, double centerim,
-               double bailout, double scale, uint max_iterations,
-               uint colorlength);
+int mandelbrot (uint height, uint width, double centerre, double centerim,
+                double bailout, double scale, uint max_iterations,
+                uint colorlength, std::string filename);
 
 /**
 * @breif Generate the burningship fractal given the parameters using
