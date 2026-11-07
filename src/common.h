@@ -20,14 +20,15 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <algorithm>
+#include <atomic>
 #include <boost/math/interpolators/pchip.hpp>
 #include <chrono>
+#include <cmath>
 #include <mpfr.h>
 #include <mutex>
 #include <png++/png.hpp>
 #include <random>
 #include <thread>
-#include <atomic>
 #define uint uint64_t // ehh. I'll fix this later.
 #define u_long uint
 using boost::math::interpolators::pchip;

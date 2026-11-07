@@ -40,9 +40,9 @@ endif()
 
 # targets
 add_library(mandelbrot SHARED
-    src/mainmandelbrot.cpp
+    src/mandelbrot.cpp
     src/util.cpp
-    src/mainburningship.cpp
+    src/burningship.cpp
 )
 
 target_sources(mandelbrot
