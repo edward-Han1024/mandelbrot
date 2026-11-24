@@ -1,4 +1,6 @@
 #include "common.h"
+#pragma once
+
 /**
  * @brief Convertes hsv value into an rgb value.
  *
@@ -15,3 +17,16 @@
  */
 void hsvToRgb(double h, double s, double v, uint &r, uint &g, uint &b);
 png::rgb_pixel grad_0(double t);
+// Grayscale.
+png::rgb_pixel grad_1(double t);
+// Viridis.
+png::rgb_pixel grad_2(double t);
+// Inferno.
+png::rgb_pixel grad_3(double t);
+// Coolwarm.
+png::rgb_pixel grad_4(double t);
+png::rgb_pixel grad_5(double t);
+png::rgb_pixel grad_6(double t);
+png::rgb_pixel grad_7(double t);
+png::rgb_pixel grad_8(double t);
+png::rgb_pixel grad_9(double t);

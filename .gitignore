@@ -119,7 +119,7 @@ test*
 
 ## temporary
 temp*
-
+.cache/
 ## dependencies
 installroot
 libpng-1.6.50

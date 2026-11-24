@@ -28,10 +28,6 @@ check_include_files(mpfr.h MPFR_H)
 if(NOT MPFR_H)
 message(SEND_ERROR MPFR is a required dependency. The header mpfr.h was not found.)
 endif()
-check_include_files(boost/math/interpolators/pchip.hpp BOOST_PCHIP_HPP)
-if(NOT BOOST_PCHIP_HPP)
-message(SEND_ERROR Boost is a required dependency. The header boost/math/interpolators/pchip.hpp was not found.)
-endif()
 check_include_files(png++/png.hpp PNG_HPP)
 if(NOT PNG_HPP)
 message(SEND_ERROR PNG++ is a required dependency. The header png++/png.hpp was not found.)
@@ -43,6 +39,7 @@ add_library(mandelbrot SHARED
     src/mandelbrot.cpp
     src/util.cpp
     src/burningship.cpp
+    src/pchip.cpp
 )
 
 target_sources(mandelbrot

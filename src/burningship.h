@@ -1,4 +1,5 @@
 #include "common.h"
+#pragma once
 
 /**
  * @brief Generate the burningship fractal given the parameters using arbitrary
